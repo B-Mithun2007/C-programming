@@ -1,0 +1,60 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+
+int main() {
+     while(1)
+  {
+  printf("1.) A\n");
+  printf("2.) B\n");
+  printf("3.) C\n");
+  printf("4.) D\n");
+  printf("5.) F\n");
+  printf("Enter your choice in upper case : ");
+  char grade;
+  scanf(" %c",&grade);
+  if(grade!='Q')
+  {
+      if(grade!='q')
+      {
+  
+ 
+      switch(grade)
+      {
+          case 'A':
+          printf("Excellent!\n");
+          break;
+          case 'B':
+          printf("Good Job!\n");
+          break;
+          case 'C':
+          printf("Well Done.\n");
+          break;
+          case 'D':
+          printf("You Passed.\n");
+          break;
+          case 'F':
+          printf("Better try again.\n");
+          break;
+          default:
+          printf("Invalid grade.\n");
+          break;
+      }
+ }
+ else
+ {
+     break;
+ }
+  }
+ else
+ {
+     break;
+ }
+  }
+  }
+
+
+  
+  
+  
+  
+
