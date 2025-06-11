@@ -1,0 +1,20 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+
+int main() {
+    printf("Enter the size of the triangle : ");
+    int n;
+    scanf("%d",&n);
+    int i;
+    int j;
+    int x=1;
+    for(i=0;i<(n+1);i++)
+    {
+    for(j=0;j<i;j++)
+    {
+    printf("%d",x);
+    x=x+1;
+    }
+    printf("\n");
+}
+}
