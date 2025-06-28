@@ -1,0 +1,24 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+
+int main() {
+    int sum10=0;
+    int sum12=0;
+printf("Enter your 10th marks:\n");
+int arr10[5];
+int i;
+for(i=0;i<5;i++)
+{
+    scanf("%d",&arr10[i]);
+    sum10=sum10+arr10[i];
+}
+printf("Enter your 12th marks:\n");
+int arr12[6];
+for(i=0;i<6;i++)
+{
+    scanf("%d",&arr12[i]);
+    sum12=sum12+arr12[i];
+}
+printf("Total marks in 10th: %d\n",sum10);
+printf("Total marks in 12th: %d\n",sum12);
+}
