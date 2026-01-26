@@ -1,0 +1,193 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+int trainNo[5]={101,102,103,104,105};
+char trainName[5][20]={"Express","Intercity","Superfast","Mail","Passenger"};
+char source[5][15]={"Delhi","Mumbai","Chennai","Kolkata","Bangalore"};
+char dest[5][15]={"Jaipur","Pune","Hyderabad","Patna","Mysore"};
+int seats[5];
+
+int pnr[500],age[500],trainBooked[500];
+char pname[500][30],gender[500];
+int count=0;
+
+void resetSeats()
+{
+int i;
+for(i=0;i<5;i++) seats[i]=50;
+}
+
+void save()
+{
+FILE *f=fopen("data.txt","w");
+int i;
+if(f==NULL) return;
+fprintf(f,"%d\n",count);
+for(i=0;i<count;i++)
+fprintf(f,"%d %s %d %c %d\n",pnr[i],pname[i],age[i],gender[i],trainBooked[i]);
+fclose(f);
+}
+
+void load()
+{
+FILE *f=fopen("data.txt","r");
+int i,tmp;
+if(f==NULL) return;
+fscanf(f,"%d",&tmp);
+if(tmp<0||tmp>500) tmp=0;
+for(i=0;i<tmp;i++)
+{
+fscanf(f,"%d %s %d %c %d",&pnr[count],pname[count],&age[count],&gender[count],&trainBooked[count]);
+if(trainBooked[count]>=0 && trainBooked[count]<5 && seats[trainBooked[count]]>0)
+{
+seats[trainBooked[count]]--;
+count++;
+}
+}
+fclose(f);
+}
+
+void header(char *t)
+{
+printf("\n====================================\n");
+printf("   %s\n",t);
+printf("====================================\n");
+}
+
+void viewTrains()
+{
+int i;
+header("AVAILABLE TRAINS");
+printf("No   Name         From        To          Seats\n");
+printf("-----------------------------------------------\n");
+for(i=0;i<5;i++)
+printf("%d  %-12s %-10s %-10s %d\n",trainNo[i],trainName[i],source[i],dest[i],seats[i]);
+}
+
+void book()
+{
+int t,i;
+header("BOOK TICKET");
+printf("Enter Train Number: ");
+scanf("%d",&t);
+for(i=0;i<5;i++)
+if(trainNo[i]==t)
+{
+if(seats[i]==0)
+{
+printf("No Seats Available\n");
+return;
+}
+printf("Passenger Name: ");
+scanf("%s",pname[count]);
+printf("Age: ");
+scanf("%d",&age[count]);
+printf("Gender(M/F): ");
+scanf(" %c",&gender[count]);
+pnr[count]=1000+count;
+trainBooked[count]=i;
+seats[i]--;
+printf("\nTicket Booked Successfully\n");
+printf("PNR Number: %d\n",pnr[count]);
+count++;
+save();
+return;
+}
+printf("Invalid Train Number\n");
+}
+
+void cancel()
+{
+int x,i,j;
+header("CANCEL TICKET");
+printf("Enter PNR Number: ");
+scanf("%d",&x);
+for(i=0;i<count;i++)
+if(pnr[i]==x)
+{
+seats[trainBooked[i]]++;
+for(j=i;j<count-1;j++)
+{
+pnr[j]=pnr[j+1];
+strcpy(pname[j],pname[j+1]);
+age[j]=age[j+1];
+gender[j]=gender[j+1];
+trainBooked[j]=trainBooked[j+1];
+}
+count--;
+save();
+printf("Ticket Cancelled Successfully\n");
+return;
+}
+printf("PNR Not Found\n");
+}
+
+void status()
+{
+int x,i;
+header("CHECK STATUS");
+printf("Enter PNR Number: ");
+scanf("%d",&x);
+for(i=0;i<count;i++)
+if(pnr[i]==x)
+{
+printf("Name   : %s\n",pname[i]);
+printf("Age    : %d\n",age[i]);
+printf("Gender : %c\n",gender[i]);
+printf("Train  : %s\n",trainName[trainBooked[i]]);
+return;
+}
+printf("PNR Not Found\n");
+}
+
+void passengers()
+{
+int t,i;
+header("PASSENGERS IN TRAIN");
+printf("Enter Train Number: ");
+scanf("%d",&t);
+for(i=0;i<count;i++)
+if(trainNo[trainBooked[i]]==t)
+printf("%s  %d  %c\n",pname[i],age[i],gender[i]);
+}
+
+void history()
+{
+char n[30];
+int i;
+header("BOOKING HISTORY");
+printf("Enter Passenger Name: ");
+scanf("%s",n);
+for(i=0;i<count;i++)
+if(strcmp(pname[i],n)==0)
+printf("PNR:%d  Train:%s\n",pnr[i],trainName[trainBooked[i]]);
+}
+
+int main()
+{
+int ch;
+resetSeats();
+load();
+while(1)
+{
+printf("\n============= RAILWAY RESERVATION SYSTEM =============\n");
+printf("1. View Trains\n");
+printf("2. Book Ticket\n");
+printf("3. Cancel Ticket\n");
+printf("4. Check Status\n");
+printf("5. View Passengers\n");
+printf("6. Booking History\n");
+printf("7. Exit\n");
+printf("Enter Choice: ");
+scanf("%d",&ch);
+if(ch==1) viewTrains();
+else if(ch==2) book();
+else if(ch==3) cancel();
+else if(ch==4) status();
+else if(ch==5) passengers();
+else if(ch==6) history();
+else break;
+}
+return 0;
+}
