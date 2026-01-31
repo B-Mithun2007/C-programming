@@ -1,0 +1,168 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX 50
+#define SUBJECTS 5
+struct Student {
+    int roll;
+    char name[30];
+    char branch[20];
+    int marks[SUBJECTS];
+    int total;
+    float percentage;
+    char grade;
+};
+struct Student s[MAX];
+int count = 0;
+void addStudent();
+void enterMarks();
+void calculateResult(struct Student *st);
+void displayByRoll();
+void displayAllSorted();
+void searchByName();
+void saveToFile();
+void loadFromFile();
+int rollExists(int roll);
+char calculateGrade(float percentage);
+int main() {
+    int choice;
+    loadFromFile();
+    do {
+        printf("\n===== STUDENT EXAMINATION SYSTEM =====\n");
+        printf("1. Add Student Record\n");
+        printf("2. Enter Marks\n");
+        printf("3. Display Result by Roll Number\n");
+        printf("4. Display All Students (Sorted by Percentage)\n");
+        printf("5. Search Student by Name\n");
+        printf("6. Save Records\n");
+        printf("0. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+        switch (choice) {
+            case 1: addStudent(); break;
+            case 2: enterMarks(); break;
+            case 3: displayByRoll(); break;
+            case 4: displayAllSorted(); break;
+            case 5: searchByName(); break;
+            case 6: saveToFile(); break;
+            case 0: saveToFile(); printf("Exiting...\n"); break;
+            default: printf("Invalid choice!\n");
+        }
+    } while (choice != 0);
+    return 0;
+}
+void addStudent() {
+    if (count >= MAX) {
+        printf("Student limit reached!\n");
+        return;
+    }
+    int roll;
+    printf("Enter Roll Number: ");
+    scanf("%d", &roll);
+    if (rollExists(roll)) {
+        printf("Roll number already exists!\n");
+        return;
+    }
+    s[count].roll = roll;
+    printf("Enter Name: ");
+    scanf(" %[^\n]", s[count].name);
+    printf("Enter Branch: ");
+    scanf(" %[^\n]", s[count].branch);
+    count++;
+    printf("Student added successfully!\n");
+}
+void enterMarks() {
+    int roll, i;
+    printf("Enter Roll Number: ");
+    scanf("%d", &roll);
+
+    for (i = 0; i < count; i++) {
+        if (s[i].roll == roll) {
+            for (int j = 0; j < SUBJECTS; j++) {
+                do {
+                    printf("Enter marks for subject %d: ", j + 1);
+                    scanf("%d", &s[i].marks[j]);
+                } while (s[i].marks[j] < 0 || s[i].marks[j] > 100);
+            }
+            calculateResult(&s[i]);
+            printf("Marks entered successfully!\n");
+            return;
+        }
+    }
+    printf("Student not found!\n");
+}
+void calculateResult(struct Student *st) {
+    st->total = 0;
+    for (int i = 0; i < SUBJECTS; i++)
+        st->total += st->marks[i];
+    st->percentage = st->total / (float)SUBJECTS;
+    st->grade = calculateGrade(st->percentage);
+}
+char calculateGrade(float p) {
+    if (p >= 90) return 'A';
+    else if (p >= 75) return 'B';
+    else if (p >= 60) return 'C';
+    else if (p >= 40) return 'D';
+    else return 'F';
+}
+void displayByRoll() {
+    int roll;
+    printf("Enter Roll Number: ");
+    scanf("%d", &roll);
+    for (int i = 0; i < count; i++) {
+        if (s[i].roll == roll) {
+            printf("\nRoll: %d\nName: %s\nBranch: %s\n", s[i].roll, s[i].name, s[i].branch);
+            printf("Total: %d\nPercentage: %.2f\nGrade: %c\n",
+                   s[i].total, s[i].percentage, s[i].grade);
+            return;
+        }
+    }
+    printf("Student not found!\n");
+}
+void displayAllSorted() {
+    struct Student temp;
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = i + 1; j < count; j++) {
+            if (s[i].percentage < s[j].percentage) {
+                temp = s[i];
+                s[i] = s[j];
+                s[j] = temp;
+            }
+        }
+    }
+    printf("\nRoll\tName\t\tPercentage\tGrade\n");
+    for (int i = 0; i < count; i++) {
+        printf("%d\t%-10s\t%.2f\t\t%c\n",
+               s[i].roll, s[i].name, s[i].percentage, s[i].grade);
+    }
+}
+void searchByName() {
+    char key[30];
+    printf("Enter name to search: ");
+    scanf(" %[^\n]", key);
+    for (int i = 0; i < count; i++) {
+        if (strstr(s[i].name, key)) {
+            printf("Roll: %d | Name: %s | Percentage: %.2f\n",
+                   s[i].roll, s[i].name, s[i].percentage);
+        }
+    }
+}
+void saveToFile() {
+    FILE *fp = fopen("students.dat", "wb");
+    fwrite(&count, sizeof(int), 1, fp);
+    fwrite(s, sizeof(struct Student), count, fp);
+    fclose(fp);
+    printf("Data saved successfully!\n");
+}
+void loadFromFile() {
+    FILE *fp = fopen("students.dat", "rb");
+    if (fp == NULL) return;
+    fread(&count, sizeof(int), 1, fp);
+    fread(s, sizeof(struct Student), count, fp);
+    fclose(fp);
+}
+int rollExists(int roll) {
+    for (int i = 0; i < count; i++)
+        if (s[i].roll == roll)
+            return 1;
+    return 0;
+}
