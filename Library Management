@@ -1,0 +1,236 @@
+#include <stdio.h>
+#include <string.h>
+#define MAX_BOOKS 100
+#define MAX_MEMBERS 50
+#define MAX_ISSUES 100
+struct Book{
+    int id;
+    char title[30];
+    char author[30];
+    int quantity;
+};
+struct Member{
+    int id;
+    char name[30];
+    char contact[15];
+};
+struct Issue{
+    int bookId;
+    int memberId;
+    char date[15];
+};
+struct Book books[MAX_BOOKS];
+struct Member members[MAX_MEMBERS];
+struct Issue issues[MAX_ISSUES];
+int bookCount=0,memberCount=0,issueCount=0;
+void addBook();
+void updateBook();
+void deleteBook();
+void addMember();
+void issueBook();
+void returnBook();
+void displayBooks();
+void booksByMember();
+void searchBook();
+void saveData();
+void loadData();
+int main(){
+    int choice;
+    loadData();
+    do{
+        printf("\n=====================================\n");
+        printf("      LIBRARY MANAGEMENT SYSTEM\n");
+        printf("=====================================\n");
+        printf("1. Add Book\n");
+        printf("2. Update Book\n");
+        printf("3. Delete Book\n");
+        printf("4. Add Member\n");
+        printf("5. Issue Book\n");
+        printf("6. Return Book\n");
+        printf("7. Display Available Books\n");
+        printf("8. View Books Issued to Member\n");
+        printf("9. Search Book (Title/Author)\n");
+        printf("0. Exit\n");
+        printf("-------------------------------------\n");
+        printf("Enter your choice: ");
+        scanf("%d",&choice);
+        switch(choice){
+            case 1:addBook();break;
+            case 2:updateBook();break;
+            case 3:deleteBook();break;
+            case 4:addMember();break;
+            case 5:issueBook();break;
+            case 6:returnBook();break;
+            case 7:displayBooks();break;
+            case 8:booksByMember();break;
+            case 9:searchBook();break;
+            case 0:saveData();printf("Data saved. Exiting...\n");break;
+            default:printf("Invalid choice! Try again.\n");
+        }
+    }while(choice!=0);
+    return 0;
+}
+void addBook(){
+    if(bookCount>=MAX_BOOKS){
+        printf("Book limit reached!\n");
+        return;
+    }
+    printf("\n--- Add New Book ---\n");
+    printf("Book ID: ");
+    scanf("%d",&books[bookCount].id);
+    printf("Title: ");
+    scanf(" %[^\n]",books[bookCount].title);
+    printf("Author: ");
+    scanf(" %[^\n]",books[bookCount].author);
+    printf("Quantity: ");
+    scanf("%d",&books[bookCount].quantity);
+    bookCount++;
+    printf("Book added successfully!\n");
+}
+void updateBook(){
+    int id;
+    printf("\nEnter Book ID to update: ");
+    scanf("%d",&id);
+    for(int i=0;i<bookCount;i++){
+        if(books[i].id==id){
+            printf("New Title: ");
+            scanf(" %[^\n]",books[i].title);
+            printf("New Author: ");
+            scanf(" %[^\n]",books[i].author);
+            printf("New Quantity: ");
+            scanf("%d",&books[i].quantity);
+            printf("Book updated successfully!\n");
+            return;
+        }
+    }
+    printf("Book not found!\n");
+}
+void deleteBook(){
+    int id;
+    printf("\nEnter Book ID to delete: ");
+    scanf("%d",&id);
+    for(int i=0;i<bookCount;i++){
+        if(books[i].id==id){
+            for(int j=i;j<bookCount-1;j++)
+                books[j]=books[j+1];
+            bookCount--;
+            printf("Book deleted successfully!\n");
+            return;
+        }
+    }
+    printf("Book not found!\n");
+}
+void addMember(){
+    if(memberCount>=MAX_MEMBERS){
+        printf("Member limit reached!\n");
+        return;
+    }
+    printf("\n--- Add Member ---\n");
+    printf("Member ID: ");
+    scanf("%d",&members[memberCount].id);
+    printf("Name: ");
+    scanf(" %[^\n]",members[memberCount].name);
+    printf("Contact: ");
+    scanf(" %[^\n]",members[memberCount].contact);
+    memberCount++;
+    printf("Member added successfully!\n");
+}
+void issueBook(){
+    int bid,mid;
+    printf("\nBook ID: ");
+    scanf("%d",&bid);
+    printf("Member ID: ");
+    scanf("%d",&mid);
+    for(int i=0;i<bookCount;i++){
+        if(books[i].id==bid){
+            if(books[i].quantity==0){
+                printf("Book not available!\n");
+                return;
+            }
+            books[i].quantity--;
+            issues[issueCount].bookId=bid;
+            issues[issueCount].memberId=mid;
+            printf("Issue Date: ");
+            scanf(" %[^\n]",issues[issueCount].date);
+            issueCount++;
+            printf("Book issued successfully!\n");
+            return;
+        }
+    }
+    printf("Book not found!\n");
+}
+void returnBook(){
+    int bid,mid;
+    printf("\nBook ID: ");
+    scanf("%d",&bid);
+    printf("Member ID: ");
+    scanf("%d",&mid);
+    for(int i=0;i<issueCount;i++){
+        if(issues[i].bookId==bid&&issues[i].memberId==mid){
+            for(int j=i;j<issueCount-1;j++)
+                issues[j]=issues[j+1];
+            issueCount--;
+            for(int k=0;k<bookCount;k++)
+                if(books[k].id==bid)
+                    books[k].quantity++;
+            printf("Book returned successfully!\n");
+            return;
+        }
+    }
+    printf("Issue record not found!\n");
+}
+void displayBooks(){
+    printf("\n--- Available Books ---\n");
+    printf("ID  Title                 Author               Qty\n");
+    printf("-----------------------------------------------\n");
+    for(int i=0;i<bookCount;i++){
+        if(books[i].quantity>0)
+            printf("%-3d %-20s %-20s %d\n",
+            books[i].id,books[i].title,books[i].author,books[i].quantity);
+    }
+}
+void booksByMember(){
+    int mid;
+    printf("\nEnter Member ID: ");
+    scanf("%d",&mid);
+    printf("\nBooks issued:\n");
+    for(int i=0;i<issueCount;i++){
+        if(issues[i].memberId==mid){
+            for(int j=0;j<bookCount;j++)
+                if(books[j].id==issues[i].bookId)
+                    printf("%s by %s\n",books[j].title,books[j].author);
+        }
+    }
+}
+void searchBook(){
+    char key[30];
+    printf("\nEnter title or author to search: ");
+    scanf(" %[^\n]",key);
+    printf("\nSearch Results:\n");
+    for(int i=0;i<bookCount;i++){
+        if(strstr(books[i].title,key)||strstr(books[i].author,key))
+            printf("%d %s %s %d\n",
+            books[i].id,books[i].title,books[i].author,books[i].quantity);
+    }
+}
+void saveData(){
+    FILE *fp=fopen("library.dat","wb");
+    fwrite(&bookCount,sizeof(int),1,fp);
+    fwrite(books,sizeof(struct Book),bookCount,fp);
+    fwrite(&memberCount,sizeof(int),1,fp);
+    fwrite(members,sizeof(struct Member),memberCount,fp);
+    fwrite(&issueCount,sizeof(int),1,fp);
+    fwrite(issues,sizeof(struct Issue),issueCount,fp);
+    fclose(fp);
+}
+void loadData(){
+    FILE *fp=fopen("library.dat","rb");
+    if(fp==NULL)return;
+    fread(&bookCount,sizeof(int),1,fp);
+    fread(books,sizeof(struct Book),bookCount,fp);
+    fread(&memberCount,sizeof(int),1,fp);
+    fread(members,sizeof(struct Member),memberCount,fp);
+    fread(&issueCount,sizeof(int),1,fp);
+    fread(issues,sizeof(struct Issue),issueCount,fp);
+    fclose(fp);
+}
